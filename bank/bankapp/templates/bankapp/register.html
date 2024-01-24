@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank - Rejestracja</title>
+    <script>
+        function calculateEntropy(password) {
+            var uniqueCharacters = Array.from(new Set(password.split(''))).length;
+            var entropy = password.length * (Math.log2(uniqueCharacters) || 0);
+            return entropy.toFixed(2);
+        }
+
+        function checkPasswordStrength() {
+            var passwordInput = document.getElementById('id_password');
+            var entropyOutput = document.getElementById('entropy-output');
+            var strengthOutput = document.getElementById('strength-output');
+
+            var entropy = calculateEntropy(passwordInput.value);
+            entropyOutput.innerText = 'Entropia hasła: ' + entropy;
+
+            var strength = '';
+            if (entropy <= 20) {
+                strength = 'Słabe';
+            } else if (entropy <= 40) {
+                strength = 'Średnie';
+            } else if (entropy <= 60) {
+                strength = 'Silne';
+            } else if (entropy > 60) {
+                strength = 'Bardzo silne';
+            }else {
+                strength = 'Słabe';
+            }
+            strengthOutput.innerText = 'Siła hasła: ' + strength;
+        }
+    </script>
+</head>
+<body>
+    <h1>Rejestracja</h1>
+
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if message %}
+            <p style="color: red;">{{ message }}</p>
+        {% endif %}
+        <button type="button" onclick="checkPasswordStrength()">Sprawdź siłę hasła</button>
+        <p id="entropy-output"></p>
+        <p id="strength-output"></p>
+        <input type="submit" value="Zarejestruj">
+    </form>
+
+    <p>Masz już konto? <a href="{% url 'login' %}">Zaloguj się</a></p>
+</body>
+</html>

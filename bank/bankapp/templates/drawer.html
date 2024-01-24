@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Bank{% endblock %}</title>
+    <style>
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: #f1f1f1;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .drawer a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #000;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .open-drawer-btn, .close-drawer-btn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: #000;
+            position: fixed;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="open-drawer-btn" onclick="toggleDrawer()">☰ Otwórz szufladę</button>
+
+    <div class="drawer" id="myDrawer">
+        <button class="close-drawer-btn" onclick="toggleDrawer()">✕ Zamknij szufladę</button>
+        <a href="{% url 'home' %}">Strona domowa</a>
+        <a href="{% url 'info' %}">Info</a>
+        <a href="{% url 'transfer' %}">Przelewy</a>
+        <a href="{% url 'settings' %}">Ustawienia</a>
+        <a href="{% url 'logout' %}">Wyloguj</a>
+        {% block drawer_content %}{% endblock %}
+    </div>
+
+    <div style="margin-left: 250px;">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function toggleDrawer() {
+            var drawer = document.getElementById("myDrawer");
+            var openBtn = document.querySelector(".open-drawer-btn");
+            var closeBtn = document.querySelector(".close-drawer-btn");
+
+            if (drawer.style.left === "0px") {
+                drawer.style.left = "-250px";
+                openBtn.style.display = "block";
+                closeBtn.style.display = "none";
+            } else {
+                drawer.style.left = "0px";
+                openBtn.style.display = "none";
+                closeBtn.style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends 'drawer.html' %}
+
+{% block title %}Przelewy{% endblock %}
+
+{% block content %}
+    <h1>Przelew środków</h1>
+    <form method="post" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if message %}
+            <p style="color: red;">{{ message }}</p>
+        {% endif %}
+        <button type="submit">Prześlij środki</button>
+    </form>
+
+    <h2>Twoje transakcje:</h2>
+    {% if transactions %}
+        <ul>
+            {% for transaction in transactions %}
+                <li>{{ transaction.amount }} zł - Odbiorca: {{ transaction.recipient.first_name }} {{ transaction.recipient.last_name }} - Data: {{ transaction.transfer_date }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Brak transakcji.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'drawer.html' %}
+
+{% block title %}Strona domowa{% endblock %}
+
+{% block content %}
+    <h1>Strowna domowa</h1>
+    <h2>Witaj ponownie, {{ user_info.first_name }}!</h2>
+    <p>Aktualny stan konta: {{ user_info.total_amount }}</p>
+{% endblock %}
