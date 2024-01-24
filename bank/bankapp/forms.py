@@ -3,20 +3,16 @@ from django.core.exceptions import ValidationError
 from .models import Transfer
 
 class UserLoginForm(forms.Form):
-    email = forms.CharField(max_length=50, label='Email')
-    haslo = forms.CharField(widget=forms.PasswordInput, label='Hasło')
+    login = forms.CharField(max_length=50, label='Login')
+    password = forms.CharField(widget=forms.PasswordInput, label='Hasło')
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        try:
-            validate_email(email)
-        except ValidationError:
-            raise forms.ValidationError('Nieprawidłowy format adresu email.')
-        return email
+    def clean_login(self):
+        login = self.cleaned_data.get('login')
+        return login
 
-    def clean_haslo(self):
-        haslo = self.cleaned_data.get('haslo')
-        return haslo
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        return password
 
 class UserRegisterForm(forms.Form):
     first_name = forms.CharField(max_length=50, label='Imię')

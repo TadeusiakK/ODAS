@@ -169,7 +169,7 @@ def login_user(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
 
-        locked_out_key = f'locked_out_{request.POST.get("email")}'
+        locked_out_key = f'locked_out_{request.POST.get("login")}'
         locked_out_time = cache.get(locked_out_key)
 
         if locked_out_time and locked_out_time > timezone.now():
@@ -177,33 +177,39 @@ def login_user(request):
             message = f'Zbyt wiele nieudanych prób. Spróbuj ponownie za {remaining_time} sekund.'
         else:
             if form.is_valid():
-                email = form.cleaned_data['email']
-                haslo = form.cleaned_data['haslo']
+                login = form.cleaned_data['login']
+                password = form.cleaned_data['password']
 
-                user = authenticate(request, username=email, password=haslo)
-
-                if user is not None:
-                    user_profile_instance.first_name = user.first_name
-                    user_profile_instance.last_name = user.last_name
-                    user_profile_instance.login = user.login
-                    user_profile_instance.password = user.password
-                    user_profile_instance.account_number = user.account_number
-                    user_profile_instance.total_amount = user.total_amount
-                    message = 'Zalogowano pomyślnie!'
-                    cache.delete(locked_out_key)
-                    return redirect('home')
+                if not re.match(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+", login):
+                    message = 'Nieprawidłowy format adresu email.'
                 else:
-                    cache_key = f'login_attempts_{email}'
-                    attempts = cache.get(cache_key, 0) + 1
-                    cache.set(cache_key, attempts, timeout=lockout_time)
+                    try:
+                        user = UserProfile.objects.get(login=login)
+                        if user.check_password(password):
+                            user_profile_instance.first_name = user.first_name
+                            user_profile_instance.last_name = user.last_name
+                            user_profile_instance.login = user.login
+                            user_profile_instance.password = user.password
+                            user_profile_instance.account_number = user.account_number
+                            user_profile_instance.total_amount = user.total_amount
+                            message = 'Zalogowano pomyślnie!'
+                            cache.delete(locked_out_key)
+                            return redirect('home')
+                        else:
+                            cache_key = f'login_attempts_{login}'
+                            attempts = cache.get(cache_key, 0) + 1
+                            cache.set(cache_key, attempts, timeout=lockout_time)
 
-                    if attempts >= max_login_attempts:
-                        lockout_time = timezone.now() + timedelta(seconds=lockout_time)
-                        cache.set(locked_out_key, lockout_time, timeout=None)
-                        message = f'Zbyt wiele nieudanych prób. Spróbuj ponownie za {lockout_time.seconds} sekund.'
-                    else:
+                            if attempts >= max_login_attempts:
+                                lockout_time = timezone.now() + timedelta(seconds=lockout_time)
+                                cache.set(locked_out_key, lockout_time, timeout=None)
+                                message = f'Zbyt wiele nieudanych prób. Spróbuj ponownie za {lockout_time.second} sekund.'
+                            else:
+                                message = 'Nieprawidłowy email lub hasło.'
+                    except UserProfile.DoesNotExist:
                         message = 'Nieprawidłowy email lub hasło.'
     else:
         form = UserLoginForm()
 
     return render(request, 'bankapp/login.html', {'form': form, 'message': message})
+
