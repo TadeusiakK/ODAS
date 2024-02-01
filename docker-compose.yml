@@ -1,0 +1,24 @@
+services:
+  web:
+    build:
+      context: ./django/
+    command: python manage.py runserver 0.0.0.0:8000
+    #command: gunicorn bank.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./django/:/usr/src/app/
+      - static_files:/usr/src/app/staticfiles
+    expose:
+      - 8000
+    # ports:
+    #   - 8000:8000
+  nginx:
+    build:
+      context: ./nginx/
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - static_files:/home/app/staticfiles
+
+volumes:
+  static_files:

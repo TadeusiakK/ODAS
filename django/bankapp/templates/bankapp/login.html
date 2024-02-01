@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank - Logowanie</title>
+    <script>
+        function submitForm(action) {
+            if (action === 'view_info') {
+                document.getElementById('id_password').disabled = true;
+            }
+            document.getElementById('formAction').value = action;
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+</head>
+<body>
+
+    <h1>Logowanie</h1>
+
+    <form method="post" id="loginForm">
+        {% csrf_token %}
+    
+        <label for="id_login">Login:</label>
+        {{ form_login.login }}
+    
+        <br>
+        <br>
+
+        <label for="id_login">Hasło:</label>
+        {{ form_password.password }}
+        <br>
+        <br>
+
+        <input type="hidden" id="formAction" name="formAction" value="view_info">
+
+        <input type="button" value="Wygeneruj kombinację hasła" onclick="submitForm('view_info')">
+        <input type="button" value="Zaloguj" onclick="submitForm('login')">
+    </form>
+
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+
+    <br>
+
+    {% if combination_info %}
+        <p><strong>Podaj litery hasła w podanej kolejności:</strong> {{ combination_info.combination }}</p>
+    {% endif %}
+
+    <p>Nie masz konta? <a href="{% url 'register' %}">Zarejestruj się</a></p>
+
+</body>
+</html>
